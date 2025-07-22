@@ -24,7 +24,6 @@ export default function CampaignList({ onEdit, refreshTrigger }: CampaignListPro
       setCampaigns(data);
     } catch (err) {
       setError('Erro ao carregar campanhas. Verifique se a API está rodando.');
-      console.error('Erro ao buscar campanhas:', err);
     } finally {
       setLoading(false);
     }
@@ -40,7 +39,6 @@ export default function CampaignList({ onEdit, refreshTrigger }: CampaignListPro
         await campaignApi.delete(documentId);
         setCampaigns(prev => prev.filter(campaign => campaign.documentId !== documentId));
       } catch (err) {
-        console.error('Erro ao excluir campanha:', err);
         alert('Erro ao excluir campanha');
       }
     }

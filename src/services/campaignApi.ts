@@ -26,7 +26,6 @@ class CampaignApi {
       const result = await response.json();
       return result.data || [];
     } catch (error) {
-      console.error('Erro ao buscar campanhas:', error);
       throw error;
     }
   }
@@ -45,7 +44,6 @@ class CampaignApi {
       const result = await response.json();
       return result.data;
     } catch (error) {
-      console.error('Erro ao buscar campanha:', error);
       throw error;
     }
   }
@@ -68,13 +66,13 @@ class CampaignApi {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
       
       const result = await response.json();
       return result.data;
     } catch (error) {
-      console.error('Erro ao criar campanha:', error);
       throw error;
     }
   }
@@ -103,7 +101,6 @@ class CampaignApi {
       const result = await response.json();
       return result.data;
     } catch (error) {
-      console.error('Erro ao atualizar campanha:', error);
       throw error;
     }
   }
@@ -119,7 +116,6 @@ class CampaignApi {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
     } catch (error) {
-      console.error('Erro ao excluir campanha:', error);
       throw error;
     }
   }

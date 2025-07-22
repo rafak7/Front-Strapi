@@ -43,7 +43,6 @@ export default function Layout() {
       handleCloseForm();
       setRefreshTrigger(prev => prev + 1);
     } catch (error) {
-      console.error('Erro ao salvar campanha:', error);
       throw error;
     } finally {
       setLoading(false);

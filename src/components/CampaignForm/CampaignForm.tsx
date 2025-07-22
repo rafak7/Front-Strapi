@@ -22,7 +22,7 @@ export default function CampaignForm({
   const [formData, setFormData] = useState<CampaignFormData>({
     nome_campanha: '',
     descricao_campanha: '',
-    status_campanha: 'Ativa',
+    status_campanha: 'ativa',
     data_campanha: '',
   });
   
@@ -46,7 +46,7 @@ export default function CampaignForm({
         setFormData({
           nome_campanha: '',
           descricao_campanha: '',
-          status_campanha: 'Ativa',
+          status_campanha: 'ativa',
           data_campanha: '',
         });
       }
@@ -84,7 +84,7 @@ export default function CampaignForm({
       setIsSubmitting(true);
       await onSubmit(formData);
     } catch (error) {
-      console.error('Erro ao submeter formulário:', error);
+      // Error handling is done in parent component
     } finally {
       setIsSubmitting(false);
     }
@@ -145,7 +145,7 @@ export default function CampaignForm({
                 name="nome_campanha"
                 value={formData.nome_campanha}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 ${
                   errors.nome_campanha ? 'border-red-300' : 'border-slate-300'
                 }`}
                 placeholder="Digite o nome da campanha"
@@ -167,7 +167,7 @@ export default function CampaignForm({
                 value={formData.descricao_campanha}
                 onChange={handleInputChange}
                 rows={3}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 ${
                   errors.descricao_campanha ? 'border-red-300' : 'border-slate-300'
                 }`}
                 placeholder="Descreva a campanha"
@@ -188,11 +188,11 @@ export default function CampaignForm({
                 name="status_campanha"
                 value={formData.status_campanha}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
                 disabled={isSubmitting || loading}
               >
-                <option value="Ativa">Ativa</option>
-                <option value="Inativa">Inativa</option>
+                <option value="ativa">Ativa</option>
+                <option value="inativa">Inativa</option>
                 <option value="Finalizada">Finalizada</option>
                 <option value="Pausada">Pausada</option>
               </select>
@@ -209,7 +209,7 @@ export default function CampaignForm({
                 name="data_campanha"
                 value={formData.data_campanha}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 ${
                   errors.data_campanha ? 'border-red-300' : 'border-slate-300'
                 }`}
                 disabled={isSubmitting || loading}
