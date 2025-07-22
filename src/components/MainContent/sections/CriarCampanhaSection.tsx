@@ -132,8 +132,7 @@ export default function CriarCampanhaSection({
 
   if (showSuccess) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-8 text-center">
+      <>
           <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-green-900 mb-2">
             {editingCampaign ? 'Campanha Atualizada!' : 'Campanha Criada!'}
@@ -144,8 +143,7 @@ export default function CriarCampanhaSection({
           <p className="text-sm text-green-600 mt-2">
             Redirecionando para a lista de campanhas...
           </p>
-        </div>
-      </div>
+      </>
     );
   }
 
