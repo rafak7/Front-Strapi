@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Gerenciador de Campanhas - Frontend
 
-## Getting Started
+Este é um projeto Next.js para gerenciar campanhas de financiamento coletivo, conectado a uma API Strapi.
 
-First, run the development server:
+## 🚀 Funcionalidades Recriadas
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- ✅ **Visualização de Campanhas**: Lista todas as campanhas em cards organizados
+- ✅ **Criação de Campanhas**: Formulário modal para criar novas campanhas
+- ✅ **Edição de Campanhas**: Editar campanhas existentes
+- ✅ **Exclusão de Campanhas**: Remover campanhas com confirmação
+- ✅ **Estados de Loading**: Indicadores visuais de carregamento
+- ✅ **Tratamento de Erros**: Mensagens de erro claras
+- ✅ **Interface Responsiva**: Design adaptável para diferentes telas
+
+## 🛠️ Tecnologias
+
+- **Next.js 15.4.2** - Framework React
+- **React 19.1.0** - Biblioteca de interface
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS** - Estilização
+- **Lucide React** - Ícones
+- **Strapi** - API backend (deve estar rodando separadamente)
+
+## 📁 Estrutura do Projeto Recriada
+
+```
+src/
+├── app/
+│   ├── layout.js          # Layout raiz do Next.js
+│   ├── page.tsx           # Página principal
+│   └── globals.css        # Estilos globais
+├── components/
+│   ├── CampaignCard/      # Componente de card da campanha
+│   ├── CampaignForm/      # Formulário modal de campanha
+│   ├── CampaignList/      # Lista de campanhas
+│   └── Layout/            # Layout principal da aplicação
+├── services/
+│   └── campaignApi.ts     # Serviços de API para campanhas
+└── types/
+    └── campaign.ts        # Tipos TypeScript para campanhas
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Como Executar
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. **Instalar dependências:**
+   ```bash
+   npm install
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Configurar variável de ambiente:**
+   - A API Strapi deve estar rodando em `http://localhost:1337`
+   - Se estiver em outra URL, defina `NEXT_PUBLIC_STRAPI_API_URL` no arquivo `.env.local`
 
-## Learn More
+3. **Executar o projeto:**
+   ```bash
+   npm run dev
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+4. **Acessar:** http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔗 Integração com Strapi
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+O projeto espera uma API Strapi com:
 
-## Deploy on Vercel
+- **Endpoint:** `/api/campanhas`
+- **Campos obrigatórios:**
+  - `nome_campanha` (string)
+  - `descricao_campanha` (string)  
+  - `status_campanha` (string)
+  - `data_campanha` (date)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📝 Comandos Disponíveis
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - Executar em modo desenvolvimento
+- `npm run build` - Fazer build para produção
+- `npm run start` - Executar build de produção
+- `npm run lint` - Executar linter
+
+## 🎨 Interface
+
+A interface inclui:
+
+- **Header** com título e botão "Nova Campanha"
+- **Dashboard** com contador de campanhas e botão atualizar
+- **Grid de Cards** responsivo (1 coluna mobile, 2 tablet, 3 desktop)
+- **Modal de Formulário** para criar/editar campanhas
+- **Estados visuais** para loading, erro e lista vazia
+
+## 🔧 Configuração da API
+
+Por padrão, a aplicação tenta se conectar com `http://localhost:1337/api`. Para alterar:
+
+1. Crie um arquivo `.env.local`
+2. Defina: `NEXT_PUBLIC_STRAPI_API_URL=sua_url_aqui`
+
+---
+
+**Nota:** Este projeto foi recriado após corrupção dos arquivos. Todos os componentes foram restaurados conforme a especificação original.
