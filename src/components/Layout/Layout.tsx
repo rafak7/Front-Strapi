@@ -7,7 +7,11 @@ import { campaignApi } from '../../services/campaignApi';
 import CampaignList from '../CampaignList/CampaignList';
 import CampaignForm from '../CampaignForm/CampaignForm';
 
-export default function Layout() {
+interface LayoutProps {
+  children?: React.ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(false);
@@ -74,29 +78,37 @@ export default function Layout() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">
-            Dashboard de Campanhas
-          </h2>
-          <p className="text-slate-600">
-            Gerencie suas campanhas de financiamento coletivo
-          </p>
-        </div>
+        {children ? (
+          children
+        ) : (
+          <>
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-slate-900 mb-2">
+                Dashboard de Campanhas
+              </h2>
+              <p className="text-slate-600">
+                Gerencie suas campanhas de financiamento coletivo
+              </p>
+            </div>
 
-        <CampaignList 
-          onEdit={handleEditCampaign}
-          refreshTrigger={refreshTrigger}
-        />
+            <CampaignList 
+              onEdit={handleEditCampaign}
+              refreshTrigger={refreshTrigger}
+            />
+          </>
+        )}
       </main>
 
-      {/* Campaign Form Modal */}
-      <CampaignForm
-        isOpen={isFormOpen}
-        onClose={handleCloseForm}
-        onSubmit={handleSubmitForm}
-        campaign={editingCampaign}
-        loading={loading}
-      />
+      {/* Campaign Form Modal - only show if not using children */}
+      {!children && (
+        <CampaignForm
+          isOpen={isFormOpen}
+          onClose={handleCloseForm}
+          onSubmit={handleSubmitForm}
+          campaign={editingCampaign}
+          loading={loading}
+        />
+      )}
     </div>
   );
 } 
