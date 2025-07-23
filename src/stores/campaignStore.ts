@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { CampaignStore } from './types';
-import { Campaign } from '../types/campaign';
+import { Campaign, CampaignFilters } from '../types/campaign';
 
 export const useCampaignStore = create<CampaignStore>()(
   devtools(
@@ -12,6 +12,8 @@ export const useCampaignStore = create<CampaignStore>()(
         campaigns: [],
         loading: false,
         error: null,
+        currentFilters: {},
+        statusOptions: [],
 
         // Ações
         setCampaigns: (campaigns: Campaign[]) =>
@@ -48,21 +50,33 @@ export const useCampaignStore = create<CampaignStore>()(
             state.error = error;
           }, false, 'setError'),
 
+        setFilters: (filters: CampaignFilters) =>
+          set((state) => {
+            state.currentFilters = filters;
+          }, false, 'setFilters'),
+
+        setStatusOptions: (options: string[]) =>
+          set((state) => {
+            state.statusOptions = options;
+          }, false, 'setStatusOptions'),
+
         clearCampaigns: () =>
           set((state) => {
             state.campaigns = [];
             state.error = null;
+            state.currentFilters = {};
           }, false, 'clearCampaigns'),
       })),
       {
-        name: 'campaign-store', // Nome para localStorage
+        name: 'campaign-store',
         partialize: (state) => ({
-          campaigns: state.campaigns, // Apenas persiste as campanhas
+          currentFilters: state.currentFilters,
+          statusOptions: state.statusOptions,
         }),
       }
     ),
     {
-      name: 'CampaignStore', // Nome para devtools
+      name: 'CampaignStore',
     }
   )
 ); 

@@ -1,4 +1,4 @@
-import { Campaign, CampaignFormData } from '../types/campaign';
+import { Campaign, CampaignFormData, CampaignFilters } from '../types/campaign';
 
 // Estados da requisição
 export type RequestStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -19,6 +19,8 @@ export interface CampaignStore {
   campaigns: Campaign[];
   loading: boolean;
   error: string | null;
+  currentFilters: CampaignFilters;
+  statusOptions: string[];
   
   // Ações
   setCampaigns: (campaigns: Campaign[]) => void;
@@ -27,6 +29,8 @@ export interface CampaignStore {
   removeCampaign: (documentId: string) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setFilters: (filters: CampaignFilters) => void;
+  setStatusOptions: (options: string[]) => void;
   clearCampaigns: () => void;
 }
 

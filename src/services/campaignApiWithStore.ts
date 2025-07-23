@@ -1,4 +1,4 @@
-import { Campaign, CampaignFormData, CampaignCreateData, CampaignUpdateData } from '../types/campaign';
+import { Campaign, CampaignFormData, CampaignCreateData, CampaignUpdateData, CampaignFilters, CampaignApiParams } from '../types/campaign';
 import { useCampaignStore } from '../stores/campaignStore';
 import { useRequestStore } from '../stores/requestStore';
 import { LastRequest, RequestStatus } from '../stores/types';
@@ -14,30 +14,77 @@ class CampaignApiWithStore {
     };
   }
 
-  private logRequest(method: LastRequest['method'], endpoint: string, status: RequestStatus, data?: any, error?: string) {
+  private buildQueryParams(filters?: CampaignFilters): string {
+    const queryParams = new URLSearchParams();
+    let hasActiveFilters = false;
+
+    // Verificar se há filtros ativos
+    if (filters) {
+      // Filtro por nome (busca case-insensitive)
+      if (filters.nome_campanha && filters.nome_campanha.trim() !== '') {
+        queryParams.append('filters[nome_campanha][$containsi]', filters.nome_campanha);
+        hasActiveFilters = true;
+      }
+
+      // Filtro por status (match exato)
+      if (filters.status_campanha && filters.status_campanha.trim() !== '') {
+        queryParams.append('filters[status_campanha][$eq]', filters.status_campanha);
+        hasActiveFilters = true;
+      }
+
+      // Filtro por intervalo de data da campanha
+      if (filters.data_campanha_inicio && filters.data_campanha_inicio.trim() !== '') {
+        queryParams.append('filters[data_campanha][$gte]', filters.data_campanha_inicio);
+        hasActiveFilters = true;
+      }
+      if (filters.data_campanha_fim && filters.data_campanha_fim.trim() !== '') {
+        queryParams.append('filters[data_campanha][$lte]', filters.data_campanha_fim);
+        hasActiveFilters = true;
+      }
+
+      // Filtro por intervalo de data de criação
+      if (filters.data_criacao_inicio && filters.data_criacao_inicio.trim() !== '') {
+        queryParams.append('filters[createdAt][$gte]', filters.data_criacao_inicio);
+        hasActiveFilters = true;
+      }
+      if (filters.data_criacao_fim && filters.data_criacao_fim.trim() !== '') {
+        queryParams.append('filters[createdAt][$lte]', filters.data_criacao_fim);
+        hasActiveFilters = true;
+      }
+    }
+
+    // Adicionar ordenação padrão
+    queryParams.append('sort[0]', 'createdAt:desc');
+
+    return queryParams.toString();
+  }
+
+  private logRequest(method: 'GET' | 'POST' | 'PUT' | 'DELETE', endpoint: string, status: RequestStatus, data?: any, error?: string) {
+    const { setLastRequest } = useRequestStore.getState();
     const request: LastRequest = {
       method,
       endpoint,
       status,
       timestamp: Date.now(),
-      data: status === 'success' ? data : undefined,
-      error: status === 'error' ? error : undefined,
+      data,
+      error,
     };
-
-    // Atualiza o store de requisições
-    useRequestStore.getState().setLastRequest(request);
+    setLastRequest(request);
   }
 
-  async getAll(): Promise<Campaign[]> {
+  async getAll(filters?: CampaignFilters): Promise<Campaign[]> {
     const { setLoading, setCampaigns, setError } = useCampaignStore.getState();
-    const endpoint = '/campanhas';
+    const queryParams = this.buildQueryParams(filters);
+    const endpoint = `/campanhas${queryParams ? `?${queryParams}` : ''}`;
     
     try {
       setLoading(true);
       setError(null);
       this.logRequest('GET', endpoint, 'loading');
       
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const url = `${API_BASE_URL}/campanhas${queryParams ? `?${queryParams}` : ''}`;
+      
+      const response = await fetch(url, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
@@ -60,6 +107,40 @@ class CampaignApiWithStore {
       throw error;
     } finally {
       setLoading(false);
+    }
+  }
+
+  async getFilterOptions(): Promise<string[]> {
+    const endpoint = '/campanhas/filter-options';
+    
+    try {
+      this.logRequest('GET', endpoint, 'loading');
+      
+      // Buscar todas as campanhas para extrair status únicos
+      const response = await fetch(`${API_BASE_URL}/campanhas`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      const campaigns: Campaign[] = result.data || [];
+      
+      // Extrair status únicos
+      const uniqueStatuses = [...new Set(campaigns.map(campaign => campaign.status_campanha))];
+      const filteredStatuses = uniqueStatuses.filter(status => status && status.trim() !== '');
+      
+      this.logRequest('GET', endpoint, 'success', filteredStatuses);
+      
+      return filteredStatuses;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      this.logRequest('GET', endpoint, 'error', undefined, errorMessage);
+      console.error('Erro ao buscar opções de filtro:', error);
+      return [];
     }
   }
 
