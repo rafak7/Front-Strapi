@@ -37,11 +37,11 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
 
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-slate-200">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Header */}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 space-y-3 sm:space-y-0">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-2 truncate">
               {campaign.nome_campanha}
             </h3>
             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(campaign.status_campanha)}`}>
@@ -49,7 +49,7 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
             </span>
           </div>
           
-          <div className="flex space-x-2 ml-4">
+          <div className="flex space-x-2 sm:ml-4 self-start">
             <button
               onClick={() => onEdit(campaign)}
               className="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -68,15 +68,15 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
         </div>
 
         {/* Description */}
-        <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+        <p className="text-slate-600 text-sm mb-4 line-clamp-3 sm:line-clamp-2">
           {campaign.descricao_campanha}
         </p>
 
         {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="space-y-2 sm:grid sm:grid-cols-1 sm:gap-2 text-sm">
           <div className="flex items-center text-slate-600">
-            <Calendar className="h-4 w-4 mr-2" />
-            <span>Data: {formatDate(campaign.data_campanha)}</span>
+            <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
+            <span className="truncate">Data: {formatDate(campaign.data_campanha)}</span>
           </div>
         </div>
 

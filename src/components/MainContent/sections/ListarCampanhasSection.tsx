@@ -2,16 +2,14 @@
 
 import React from 'react';
 import { AlertCircle, Loader, RefreshCw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Campaign, CampaignFilters } from '../../../types/campaign';
 import { useCampaigns } from '../../../hooks/useCampaigns';
 import CampaignCard from '../../CampaignCard/CampaignCard';
 import CampaignFiltersComponent from '../../CampaignFilters/CampaignFilters';
 
-interface ListarCampanhasSectionProps {
-  onEdit: (campaign: Campaign) => void;
-}
-
-export default function ListarCampanhasSection({ onEdit }: ListarCampanhasSectionProps) {
+export default function ListarCampanhasSection() {
+  const router = useRouter();
   const { 
     campaigns, 
     loading, 
@@ -35,6 +33,12 @@ export default function ListarCampanhasSection({ onEdit }: ListarCampanhasSectio
 
   const handleFiltersChange = async (filters: CampaignFilters) => {
     await applyFilters(filters);
+  };
+
+  const handleEdit = (campaign: Campaign) => {
+    if (campaign.documentId) {
+      router.push(`/campanhas/${campaign.documentId}/editar`);
+    }
   };
 
   if (loading) {
@@ -81,7 +85,7 @@ export default function ListarCampanhasSection({ onEdit }: ListarCampanhasSectio
       />
 
       {/* Header com informações */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-3 sm:space-y-0">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
             {campaigns.length} {campaigns.length === 1 ? 'Campanha' : 'Campanhas'} encontrada{campaigns.length === 1 ? '' : 's'}
@@ -96,7 +100,7 @@ export default function ListarCampanhasSection({ onEdit }: ListarCampanhasSectio
         <button
           onClick={refreshCampaigns}
           disabled={loading}
-          className="inline-flex items-center px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50"
+          className="inline-flex items-center px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors disabled:opacity-50 w-full sm:w-auto justify-center"
         >
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Atualizar
@@ -105,8 +109,8 @@ export default function ListarCampanhasSection({ onEdit }: ListarCampanhasSectio
 
       {/* Estado vazio */}
       {campaigns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className="text-center max-w-md">
+        <div className="flex flex-col items-center justify-center py-12 sm:py-20">
+          <div className="text-center max-w-md px-4">
             <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
               <AlertCircle className="h-8 w-8 text-gray-400" />
             </div>
@@ -116,7 +120,7 @@ export default function ListarCampanhasSection({ onEdit }: ListarCampanhasSectio
                 : 'Nenhuma campanha cadastrada'
               }
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-6 text-sm sm:text-base">
               {Object.values(currentFilters).some(v => v)
                 ? 'Tente ajustar os filtros para encontrar campanhas ou crie uma nova campanha.'
                 : 'Parece que você ainda não criou nenhuma campanha. Use o menu lateral para criar sua primeira campanha.'
@@ -124,7 +128,7 @@ export default function ListarCampanhasSection({ onEdit }: ListarCampanhasSectio
             </p>
             <button
               onClick={refreshCampaigns}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors w-full sm:w-auto justify-center"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Atualizar Lista
@@ -133,12 +137,12 @@ export default function ListarCampanhasSection({ onEdit }: ListarCampanhasSectio
         </div>
       ) : (
         /* Grid de Campanhas */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {campaigns.map((campaign) => (
             <CampaignCard
               key={campaign.id || campaign.documentId}
               campaign={campaign}
-              onEdit={onEdit}
+              onEdit={handleEdit}
               onDelete={handleDelete}
             />
           ))}

@@ -116,16 +116,16 @@ export default function CampaignForm({
       <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
       
       {/* Modal */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md">
+      <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
+        <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-2 sm:mx-0">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-slate-200">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200">
             <h2 className="text-lg font-semibold text-slate-900">
               {campaign ? 'Editar Campanha' : 'Nova Campanha'}
             </h2>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 transition-colors"
+              className="text-slate-400 hover:text-slate-600 transition-colors p-1"
               disabled={isSubmitting || loading}
             >
               <X className="h-5 w-5" />
@@ -133,7 +133,7 @@ export default function CampaignForm({
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
             {/* Nome da Campanha */}
             <div>
               <label htmlFor="nome_campanha" className="block text-sm font-medium text-slate-700 mb-1">
@@ -145,7 +145,7 @@ export default function CampaignForm({
                 name="nome_campanha"
                 value={formData.nome_campanha}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 text-base ${
                   errors.nome_campanha ? 'border-red-300' : 'border-slate-300'
                 }`}
                 placeholder="Digite o nome da campanha"
@@ -167,7 +167,7 @@ export default function CampaignForm({
                 value={formData.descricao_campanha}
                 onChange={handleInputChange}
                 rows={3}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 text-base resize-none ${
                   errors.descricao_campanha ? 'border-red-300' : 'border-slate-300'
                 }`}
                 placeholder="Descreva a campanha"
@@ -188,7 +188,7 @@ export default function CampaignForm({
                 name="status_campanha"
                 value={formData.status_campanha}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 text-base"
                 disabled={isSubmitting || loading}
               >
                 <option value="ativa">Ativa</option>
@@ -209,7 +209,7 @@ export default function CampaignForm({
                 name="data_campanha"
                 value={formData.data_campanha}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 ${
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900 text-base ${
                   errors.data_campanha ? 'border-red-300' : 'border-slate-300'
                 }`}
                 disabled={isSubmitting || loading}
@@ -220,11 +220,11 @@ export default function CampaignForm({
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end space-x-3 pt-4">
+            <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors"
+                className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 transition-colors order-2 sm:order-1"
                 disabled={isSubmitting || loading}
               >
                 Cancelar
@@ -232,7 +232,7 @@ export default function CampaignForm({
               <button
                 type="submit"
                 disabled={isSubmitting || loading}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
               >
                 {(isSubmitting || loading) ? (
                   <>
