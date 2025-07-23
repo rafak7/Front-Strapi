@@ -16,7 +16,7 @@ export default function CriarCampanhaSection({
   onCancel, 
   onSuccess 
 }: CriarCampanhaSectionProps) {
-  const { loading, createCampaign, editCampaign } = useCampaigns();
+  const { loading, createCampaign, updateCampaignById } = useCampaigns();
 
   const [formData, setFormData] = useState<CampaignFormData>({
     nome_campanha: '',
@@ -82,7 +82,7 @@ export default function CriarCampanhaSection({
       setIsSubmitting(true);
       
       if (editingCampaign && editingCampaign.documentId) {
-        await editCampaign(editingCampaign.documentId, formData);
+        await updateCampaignById(editingCampaign.documentId, formData);
       } else {
         await createCampaign(formData);
       }
@@ -95,7 +95,7 @@ export default function CriarCampanhaSection({
       }, 2000);
       
     } catch (error) {
-      console.error('Erro ao salvar campanha:', error);
+      // Error já está sendo tratado pelo hook/store
     } finally {
       setIsSubmitting(false);
     }

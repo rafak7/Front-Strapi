@@ -10,49 +10,41 @@ import { Campaign } from '../../../../types/campaign';
 export default function EditarCampanhaPage() {
   const params = useParams();
   const router = useRouter();
-  const { campaigns, loading: campaignsLoading, loadCampaigns } = useCampaigns();
+  const { getCampaignById, loading: campaignsLoading } = useCampaigns();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadCampaign = async () => {
+      if (!params.id) {
+        setError('ID da campanha não encontrado');
+        setLoading(false);
+        return;
+      }
+
       try {
-        if (params.id) {
-          // Se as campanhas não estão carregadas, carregar primeiro
-          if (campaigns.length === 0 && !campaignsLoading) {
-            await loadCampaigns();
-          }
-          
-          // Buscar a campanha pelo documentId
-          const foundCampaign = campaigns.find(c => c.documentId === params.id);
-          if (foundCampaign) {
-            setCampaign(foundCampaign);
-          } else {
-            setError('Campanha não encontrada');
-          }
-        }
+        const foundCampaign = await getCampaignById(params.id as string);
+        setCampaign(foundCampaign);
       } catch (err) {
-        setError('Erro ao carregar campanha');
-        console.error('Erro ao carregar campanha:', err);
+        setError('Campanha não encontrada');
       } finally {
         setLoading(false);
       }
     };
 
     loadCampaign();
-  }, [params.id, campaigns, campaignsLoading, loadCampaigns]);
+  }, [params.id, getCampaignById]);
 
   const handleCancel = () => {
-    // A navegação será feita pela sidebar ou botão cancelar
-  };
-
-  const handleSuccess = () => {
-    // Após sucesso, redirecionar para lista
     router.push('/');
   };
 
-  if (loading) {
+  const handleSuccess = () => {
+    router.push('/');
+  };
+
+  if (loading || campaignsLoading) {
     return (
       <Layout title="Carregando..." subtitle="Carregando dados da campanha">
         <div className="flex items-center justify-center py-20">

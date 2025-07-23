@@ -96,7 +96,6 @@ class CampaignApi {
       const uniqueStatuses = [...new Set(campaigns.map(campaign => campaign.status_campanha))];
       return uniqueStatuses.filter(status => status && status.trim() !== '');
     } catch (error) {
-      console.error('Erro ao buscar opções de filtro:', error);
       return [];
     }
   }

@@ -24,14 +24,14 @@ export const useCampaigns = () => {
 
   const { lastRequest, requestHistory } = useRequestStore();
 
-  // Carregar campanhas automaticamente na primeira vez
+  // Carregar campanhas automaticamente quando o componente montar
   useEffect(() => {
     if (campaigns.length === 0 && !loading && !error) {
       loadCampaigns();
     }
   }, []);
 
-  // Carregar opções de filtro na primeira vez
+  // Carregar opções de filtro automaticamente
   useEffect(() => {
     if (statusOptions.length === 0) {
       loadFilterOptions();
@@ -42,48 +42,32 @@ export const useCampaigns = () => {
     try {
       await campaignApiWithStore.getAll(filters);
     } catch (error) {
-      console.error('Erro ao carregar campanhas:', error);
+      // Error já é tratado pelo store
     }
   };
 
   const loadFilterOptions = async () => {
     try {
-      const options = await campaignApiWithStore.getFilterOptions();
-      setStatusOptions(options);
+      await campaignApiWithStore.getFilterOptions();
     } catch (error) {
-      console.error('Erro ao carregar opções de filtro:', error);
+      // Error já é tratado pelo store
     }
   };
 
-  const applyFilters = async (filters: CampaignFilters) => {
-    setFilters(filters);
-    await loadCampaigns(filters);
-  };
-
-  const refreshCampaigns = async () => {
-    await loadCampaigns(currentFilters);
-  };
-
-  const createCampaign = async (campaignData: any) => {
+  const createCampaign = async (data: any) => {
     try {
-      const newCampaign = await campaignApiWithStore.create(campaignData);
-      // Recarregar opções de filtro caso tenha sido adicionado um novo status
-      await loadFilterOptions();
+      const newCampaign = await campaignApiWithStore.create(data);
       return newCampaign;
     } catch (error) {
-      console.error('Erro ao criar campanha:', error);
       throw error;
     }
   };
 
-  const editCampaign = async (documentId: string, campaignData: any) => {
+  const updateCampaignById = async (documentId: string, data: any) => {
     try {
-      const updatedCampaign = await campaignApiWithStore.update(documentId, campaignData);
-      // Recarregar opções de filtro caso o status tenha sido alterado
-      await loadFilterOptions();
+      const updatedCampaign = await campaignApiWithStore.update(documentId, data);
       return updatedCampaign;
     } catch (error) {
-      console.error('Erro ao atualizar campanha:', error);
       throw error;
     }
   };
@@ -91,10 +75,40 @@ export const useCampaigns = () => {
   const deleteCampaign = async (documentId: string) => {
     try {
       await campaignApiWithStore.delete(documentId);
-      // Recarregar opções de filtro caso um status tenha ficado sem uso
-      await loadFilterOptions();
     } catch (error) {
-      console.error('Erro ao deletar campanha:', error);
+      throw error;
+    }
+  };
+
+  const applyFilters = async (filters: CampaignFilters) => {
+    try {
+      setFilters(filters);
+      await loadCampaigns(filters);
+    } catch (error) {
+      // Error já é tratado pelo store
+    }
+  };
+
+  const refreshCampaigns = async () => {
+    try {
+      await loadCampaigns(currentFilters);
+    } catch (error) {
+      // Error já é tratado pelo store
+    }
+  };
+
+  const getCampaignById = async (documentId: string) => {
+    try {
+      // Primeiro tenta encontrar nos dados já carregados
+      const existingCampaign = campaigns.find(c => c.documentId === documentId);
+      if (existingCampaign) {
+        return existingCampaign;
+      }
+
+      // Se não encontrou, busca na API
+      const campaign = await campaignApiWithStore.getById(documentId);
+      return campaign;
+    } catch (error) {
       throw error;
     }
   };
@@ -112,10 +126,11 @@ export const useCampaigns = () => {
     // Ações
     loadCampaigns,
     createCampaign,
-    editCampaign,
+    updateCampaignById,
     deleteCampaign,
     applyFilters,
     refreshCampaigns,
+    getCampaignById,
     loadFilterOptions,
     clearCampaigns,
   };

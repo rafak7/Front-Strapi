@@ -16,7 +16,7 @@ export default function CampaignFormWithStore({
   onClose, 
   campaign = null
 }: CampaignFormWithStoreProps) {
-  const { loading, createCampaign, editCampaign } = useCampaigns();
+  const { loading, createCampaign, updateCampaignById } = useCampaigns();
 
   const [formData, setFormData] = useState<CampaignFormData>({
     nome_campanha: '',
@@ -84,7 +84,7 @@ export default function CampaignFormWithStore({
       
       if (campaign && campaign.documentId) {
         // Editando campanha existente
-        await editCampaign(campaign.documentId, formData);
+        await updateCampaignById(campaign.documentId, formData);
       } else {
         // Criando nova campanha
         await createCampaign(formData);
@@ -93,7 +93,6 @@ export default function CampaignFormWithStore({
       onClose();
     } catch (error) {
       // Error já está sendo tratado no hook/store
-      console.error('Erro ao salvar campanha:', error);
     } finally {
       setIsSubmitting(false);
     }

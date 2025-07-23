@@ -139,7 +139,6 @@ class CampaignApiWithStore {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       this.logRequest('GET', endpoint, 'error', undefined, errorMessage);
-      console.error('Erro ao buscar opções de filtro:', error);
       return [];
     }
   }
