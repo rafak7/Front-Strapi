@@ -110,6 +110,39 @@ class CampaignApiWithStore {
     }
   }
 
+  async getAllSilent(filters?: CampaignFilters): Promise<Campaign[]> {
+    const { setCampaigns } = useCampaignStore.getState();
+    const queryParams = this.buildQueryParams(filters);
+    const endpoint = `/campanhas${queryParams ? `?${queryParams}` : ''}`;
+    
+    try {
+      this.logRequest('GET', endpoint, 'loading');
+      
+      const url = `${API_BASE_URL}/campanhas${queryParams ? `?${queryParams}` : ''}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      const campaigns = result.data || [];
+      
+      setCampaigns(campaigns);
+      this.logRequest('GET', endpoint, 'success', campaigns);
+      
+      return campaigns;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      this.logRequest('GET', endpoint, 'error', undefined, errorMessage);
+      throw error;
+    }
+  }
+
   async getFilterOptions(): Promise<string[]> {
     const endpoint = '/campanhas/filter-options';
     

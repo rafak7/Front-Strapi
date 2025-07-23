@@ -102,6 +102,25 @@ export const useCampaigns = () => {
     }
   };
 
+  const refreshCampaignsSilent = async () => {
+    try {
+      await Promise.all([
+        loadCampaignsSilent(currentFilters),
+        loadFilterOptions()
+      ]);
+    } catch (error) {
+      // Error já é tratado pelo store
+    }
+  };
+
+  const loadCampaignsSilent = async (filters?: CampaignFilters) => {
+    try {
+      await campaignApiWithStore.getAllSilent(filters);
+    } catch (error) {
+      // Error já é tratado pelo store
+    }
+  };
+
   const getCampaignById = async (documentId: string) => {
     try {
       // Primeiro tenta encontrar nos dados já carregados
@@ -135,6 +154,7 @@ export const useCampaigns = () => {
     deleteCampaign,
     applyFilters,
     refreshCampaigns,
+    refreshCampaignsSilent,
     getCampaignById,
     loadFilterOptions,
     clearCampaigns,

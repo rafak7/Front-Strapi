@@ -1,12 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import Layout from '../components/Layout/Layout';
 import ListarCampanhasSection from '../components/MainContent/sections/ListarCampanhasSection';
+import { useCampaigns } from '../hooks/useCampaigns';
 
 export default function HomePage() {
+  const { refreshCampaignsSilent } = useCampaigns();
+
+  // Atualizar cache sempre que voltar para a página de campanhas
+  useEffect(() => {
+    refreshCampaignsSilent();
+  }, []);
+
   const headerActions = (
     <Link
       href="/campanhas/criar"
