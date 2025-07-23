@@ -116,30 +116,16 @@ class CampaignApiWithStore {
     try {
       this.logRequest('GET', endpoint, 'loading');
       
-      // Buscar todas as campanhas para extrair status únicos
-      const response = await fetch(`${API_BASE_URL}/campanhas`, {
-        method: 'GET',
-        headers: this.getAuthHeaders(),
-      });
+      // Retornar todos os status possíveis
+      const allPossibleStatuses = ['ativa', 'inativa', 'Finalizada', 'Pausada'];
       
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      this.logRequest('GET', endpoint, 'success', allPossibleStatuses);
       
-      const result = await response.json();
-      const campaigns: Campaign[] = result.data || [];
-      
-      // Extrair status únicos
-      const uniqueStatuses = [...new Set(campaigns.map(campaign => campaign.status_campanha))];
-      const filteredStatuses = uniqueStatuses.filter(status => status && status.trim() !== '');
-      
-      this.logRequest('GET', endpoint, 'success', filteredStatuses);
-      
-      return filteredStatuses;
+      return allPossibleStatuses;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       this.logRequest('GET', endpoint, 'error', undefined, errorMessage);
-      return [];
+      return ['ativa', 'inativa', 'Finalizada', 'Pausada']; // Retorna todos os status mesmo em caso de erro
     }
   }
 

@@ -13,7 +13,7 @@ export const useCampaignStore = create<CampaignStore>()(
         loading: false,
         error: null,
         currentFilters: {},
-        statusOptions: [],
+        statusOptions: ['ativa', 'inativa', 'Finalizada', 'Pausada'],
 
         // Ações
         setCampaigns: (campaigns: Campaign[]) =>

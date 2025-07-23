@@ -33,9 +33,7 @@ export const useCampaigns = () => {
 
   // Carregar opções de filtro automaticamente
   useEffect(() => {
-    if (statusOptions.length === 0) {
-      loadFilterOptions();
-    }
+    loadFilterOptions();
   }, []);
 
   const loadCampaigns = async (filters?: CampaignFilters) => {
@@ -48,7 +46,8 @@ export const useCampaigns = () => {
 
   const loadFilterOptions = async () => {
     try {
-      await campaignApiWithStore.getFilterOptions();
+      const statusOptions = await campaignApiWithStore.getFilterOptions();
+      setStatusOptions(statusOptions);
     } catch (error) {
       // Error já é tratado pelo store
     }
@@ -83,7 +82,10 @@ export const useCampaigns = () => {
   const applyFilters = async (filters: CampaignFilters) => {
     try {
       setFilters(filters);
-      await loadCampaigns(filters);
+      await Promise.all([
+        loadCampaigns(filters),
+        loadFilterOptions()
+      ]);
     } catch (error) {
       // Error já é tratado pelo store
     }
@@ -91,7 +93,10 @@ export const useCampaigns = () => {
 
   const refreshCampaigns = async () => {
     try {
-      await loadCampaigns(currentFilters);
+      await Promise.all([
+        loadCampaigns(currentFilters),
+        loadFilterOptions()
+      ]);
     } catch (error) {
       // Error já é tratado pelo store
     }
