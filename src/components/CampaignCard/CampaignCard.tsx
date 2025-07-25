@@ -44,9 +44,18 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
             <h3 className="text-lg sm:text-xl font-semibold text-slate-900 mb-2 truncate">
               {campaign.nome_campanha}
             </h3>
-            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(campaign.status_campanha)}`}>
-              {getStatusText(campaign.status_campanha)}
-            </span>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(campaign.status_campanha)}`}>
+                {getStatusText(campaign.status_campanha)}
+              </span>
+              {/* Tag da Empresa */}
+              {campaign.empresa && (
+                <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                  <Building className="h-3 w-3 mr-1" />
+                  {campaign.empresa.nome_empresa}
+                </span>
+              )}
+            </div>
           </div>
           
           <div className="flex space-x-2 sm:ml-4 self-start">
@@ -74,16 +83,6 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
 
         {/* Info Grid */}
         <div className="space-y-2 text-sm">
-          {/* Empresa */}
-          {campaign.empresa && (
-            <div className="flex items-center text-slate-600">
-              <Building className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="truncate">
-                {campaign.empresa.nome_empresa} - {campaign.empresa.setor_empresa}
-              </span>
-            </div>
-          )}
-          
           {/* Data */}
           <div className="flex items-center text-slate-600">
             <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />

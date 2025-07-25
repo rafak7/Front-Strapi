@@ -75,14 +75,15 @@ class CampaignApiWithStore {
   async getAll(filters?: CampaignFilters): Promise<Campaign[]> {
     const { setLoading, setCampaigns, setError } = useCampaignStore.getState();
     const queryParams = this.buildQueryParams(filters);
-    const endpoint = `/campanhas${queryParams ? `?${queryParams}` : ''}`;
+    const populateParam = 'populate=*';
+    const endpoint = `/campanhas${queryParams ? `?${queryParams}&${populateParam}` : `?${populateParam}`}`;
     
     try {
       setLoading(true);
       setError(null);
       this.logRequest('GET', endpoint, 'loading');
       
-      const url = `${API_BASE_URL}/campanhas${queryParams ? `?${queryParams}` : ''}`;
+      const url = `${API_BASE_URL}/campanhas${queryParams ? `?${queryParams}&${populateParam}` : `?${populateParam}`}`;
       
       const response = await fetch(url, {
         method: 'GET',
@@ -113,12 +114,13 @@ class CampaignApiWithStore {
   async getAllSilent(filters?: CampaignFilters): Promise<Campaign[]> {
     const { setCampaigns } = useCampaignStore.getState();
     const queryParams = this.buildQueryParams(filters);
-    const endpoint = `/campanhas${queryParams ? `?${queryParams}` : ''}`;
+    const populateParam = 'populate=*';
+    const endpoint = `/campanhas${queryParams ? `?${queryParams}&${populateParam}` : `?${populateParam}`}`;
     
     try {
       this.logRequest('GET', endpoint, 'loading');
       
-      const url = `${API_BASE_URL}/campanhas${queryParams ? `?${queryParams}` : ''}`;
+      const url = `${API_BASE_URL}/campanhas${queryParams ? `?${queryParams}&${populateParam}` : `?${populateParam}`}`;
       
       const response = await fetch(url, {
         method: 'GET',
@@ -216,8 +218,6 @@ class CampaignApiWithStore {
           }
         };
 
-        console.log('📤 Criando campanha SEM empresa:', JSON.stringify(payload, null, 2));
-
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
           method: 'POST',
           headers: this.getAuthHeaders(),
@@ -238,8 +238,6 @@ class CampaignApiWithStore {
       }
 
       // Verificar se a empresa existe
-      console.log('🔍 Verificando empresa com documentId:', campaignData.empresa);
-      
       const empresaResponse = await fetch(`${API_BASE_URL}/empresas?filters[documentId][$eq]=${campaignData.empresa}`, {
         method: 'GET',
         headers: this.getAuthHeaders(),
@@ -255,7 +253,6 @@ class CampaignApiWithStore {
       }
       
       const empresa = empresaResult.data[0];
-      console.log('🏢 Empresa encontrada:', empresa);
 
       // Tentar sintaxes do Strapi v5 conforme documentação oficial
       const relationshipOptions = [
@@ -273,8 +270,6 @@ class CampaignApiWithStore {
         },
       ];
 
-      console.log('🔗 Testando sintaxes do Strapi v5 para relação empresa-campanha');
-
       // Tentar cada opção conforme documentação oficial
       for (let i = 0; i < relationshipOptions.length; i++) {
         const empresaOption = relationshipOptions[i];
@@ -289,8 +284,6 @@ class CampaignApiWithStore {
           }
         };
 
-        console.log(`📤 Tentativa ${i + 1}/${relationshipOptions.length} - Sintaxe Strapi v5:`, JSON.stringify(payload, null, 2));
-
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
           method: 'POST',
           headers: this.getAuthHeaders(),
@@ -299,7 +292,6 @@ class CampaignApiWithStore {
         
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(`❌ Tentativa ${i + 1} falhou:`, errorText);
           
           // Se não é a última tentativa, continuar
           if (i < relationshipOptions.length - 1) {
@@ -310,19 +302,9 @@ class CampaignApiWithStore {
         }
         
         const result = await response.json();
-        console.log(`✅ Sucesso na tentativa ${i + 1}! Resposta do Strapi:`, JSON.stringify(result, null, 2));
         
         // Buscar a campanha criada com populate para verificar se a relação foi estabelecida
         const createdCampaign = await this.getByIdWithPopulate(result.data.documentId);
-        console.log('📥 Campanha criada com populate:', JSON.stringify(createdCampaign, null, 2));
-        
-        // Verificar se a empresa foi relacionada corretamente
-        if (createdCampaign.empresa) {
-          console.log('🎉 SUCESSO! Relação empresa-campanha criada corretamente!');
-          console.log('🏢 Empresa relacionada:', createdCampaign.empresa);
-        } else {
-          console.warn('⚠️ Campanha criada mas empresa ainda está null');
-        }
         
         addCampaign(createdCampaign);
         this.logRequest('POST', endpoint, 'success', createdCampaign);
@@ -334,7 +316,6 @@ class CampaignApiWithStore {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       setError(errorMessage);
       this.logRequest('POST', endpoint, 'error', undefined, errorMessage);
-      console.error('❌ Erro ao criar campanha:', error);
       throw error;
     } finally {
       setLoading(false);
