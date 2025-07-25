@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Save, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { Save, X, AlertCircle, CheckCircle, Plus, Building } from 'lucide-react';
 import { Campaign, CampaignFormData } from '../../../types/campaign';
+import { Company, CompanyFormData } from '../../../types/company';
 import { useCampaigns } from '../../../hooks/useCampaigns';
+import { companyApi } from '../../../services/companyApi';
+import CompanyModal from '../../CompanyModal/CompanyModal';
 
 interface CriarCampanhaSectionProps {
   editingCampaign?: Campaign | null;
@@ -23,11 +26,20 @@ export default function CriarCampanhaSection({
     descricao_campanha: '',
     status_campanha: 'ativa',
     data_campanha: '',
+    empresa: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
+
+  // Carregar empresas quando componente monta
+  useEffect(() => {
+    loadCompanies();
+  }, []);
 
   // Preencher formulário se estiver editando
   useEffect(() => {
@@ -38,6 +50,7 @@ export default function CriarCampanhaSection({
         descricao_campanha: editingCampaign.descricao_campanha,
         status_campanha: editingCampaign.status_campanha,
         data_campanha: editingCampaign.data_campanha,
+        empresa: editingCampaign.empresa?.documentId || '',
       });
     } else {
       // Limpar formulário para nova campanha
@@ -46,11 +59,24 @@ export default function CriarCampanhaSection({
         descricao_campanha: '',
         status_campanha: 'ativa',
         data_campanha: '',
+        empresa: '',
       });
     }
     setErrors({});
     setShowSuccess(false);
   }, [editingCampaign]);
+
+  const loadCompanies = async () => {
+    try {
+      setIsLoadingCompanies(true);
+      const companiesData = await companyApi.getAll();
+      setCompanies(companiesData);
+    } catch (error) {
+      console.error('Erro ao carregar empresas:', error);
+    } finally {
+      setIsLoadingCompanies(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -67,6 +93,10 @@ export default function CriarCampanhaSection({
       newErrors.data_campanha = 'Data da campanha é obrigatória';
     }
 
+    if (!formData.empresa) {
+      newErrors.empresa = 'Empresa é obrigatória';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -75,6 +105,12 @@ export default function CriarCampanhaSection({
     e.preventDefault();
     
     if (!validateForm()) {
+      return;
+    }
+
+    // Se não tem empresa selecionada e não tem empresas disponíveis, mostrar modal
+    if (!formData.empresa && companies.length === 0) {
+      setIsCompanyModalOpen(true);
       return;
     }
 
@@ -99,6 +135,27 @@ export default function CriarCampanhaSection({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCreateCompany = async (companyData: CompanyFormData) => {
+    try {
+      const newCompany = await companyApi.create(companyData);
+      await loadCompanies(); // Reload companies list
+      setFormData(prev => ({ ...prev, empresa: newCompany.documentId }));
+      setIsCompanyModalOpen(false);
+      
+      // Clear empresa error if it exists
+      if (errors.empresa) {
+        setErrors(prev => ({ ...prev, empresa: '' }));
+      }
+    } catch (error) {
+      console.error('Erro ao criar empresa:', error);
+      throw error;
+    }
+  };
+
+  const handleOpenCompanyModal = () => {
+    setIsCompanyModalOpen(true);
   };
 
   const handleInputChange = (
@@ -126,6 +183,7 @@ export default function CriarCampanhaSection({
         descricao_campanha: '',
         status_campanha: 'ativa',
         data_campanha: '',
+        empresa: '',
       });
       setErrors({});
       
@@ -238,6 +296,49 @@ export default function CriarCampanhaSection({
             )}
           </div>
 
+          {/* Empresa */}
+          <div>
+            <label htmlFor="empresa" className="block text-sm font-medium text-gray-700 mb-2">
+              Empresa *
+            </label>
+            <div className="flex space-x-2">
+              <select
+                id="empresa"
+                name="empresa"
+                value={formData.empresa}
+                onChange={handleInputChange}
+                className={`flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-base ${
+                  errors.empresa ? 'border-red-300' : 'border-gray-300'
+                }`}
+                disabled={isSubmitting || loading || isLoadingCompanies}
+              >
+                <option value="">
+                  {isLoadingCompanies ? 'Carregando empresas...' : 'Selecione uma empresa'}
+                </option>
+                {companies.map((company) => (
+                  <option key={company.documentId} value={company.documentId}>
+                    {company.nome_empresa} - {company.setor_empresa}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={handleOpenCompanyModal}
+                disabled={isSubmitting || loading}
+                className="px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Criar nova empresa"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+            {errors.empresa && (
+              <div className="mt-1 flex items-center text-sm text-red-600">
+                <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
+                {errors.empresa}
+              </div>
+            )}
+          </div>
+
           {/* Status e Data em uma linha para desktop, empilhados no mobile */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Status */}
@@ -315,6 +416,13 @@ export default function CriarCampanhaSection({
           </div>
         </form>
       </div>
+
+      {/* Company Modal */}
+      <CompanyModal
+        isOpen={isCompanyModalOpen}
+        onClose={() => setIsCompanyModalOpen(false)}
+        onSubmit={handleCreateCompany}
+      />
     </div>
   );
 } 

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Edit, Trash2, Calendar, Target, TrendingUp } from 'lucide-react';
+import { Edit, Trash2, Calendar, Building } from 'lucide-react';
 import { Campaign } from '../../types/campaign';
 
 interface CampaignCardProps {
@@ -73,7 +73,18 @@ export default function CampaignCard({ campaign, onEdit, onDelete }: CampaignCar
         </p>
 
         {/* Info Grid */}
-        <div className="space-y-2 sm:grid sm:grid-cols-1 sm:gap-2 text-sm">
+        <div className="space-y-2 text-sm">
+          {/* Empresa */}
+          {campaign.empresa && (
+            <div className="flex items-center text-slate-600">
+              <Building className="h-4 w-4 mr-2 flex-shrink-0" />
+              <span className="truncate">
+                {campaign.empresa.nome_empresa} - {campaign.empresa.setor_empresa}
+              </span>
+            </div>
+          )}
+          
+          {/* Data */}
           <div className="flex items-center text-slate-600">
             <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
             <span className="truncate">Data: {formatDate(campaign.data_campanha)}</span>

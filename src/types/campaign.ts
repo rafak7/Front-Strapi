@@ -6,6 +6,12 @@ export interface Campaign {
   descricao_campanha: string;
   status_campanha: string;
   data_campanha: string;
+  empresa?: {
+    id: number;
+    documentId: string;
+    nome_empresa: string;
+    setor_empresa: string;
+  };
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -17,6 +23,7 @@ export interface CampaignFormData {
   descricao_campanha: string;
   status_campanha: string;
   data_campanha: string;
+  empresa?: string; // DocumentId da empresa
 }
 
 export interface CampaignCreateData {
@@ -25,6 +32,7 @@ export interface CampaignCreateData {
     descricao_campanha: string;
     status_campanha: string;
     data_campanha: string;
+    empresa?: string;
   };
 }
 
@@ -34,6 +42,7 @@ export interface CampaignUpdateData {
     descricao_campanha?: string;
     status_campanha?: string;
     data_campanha?: string;
+    empresa?: string;
   };
 }
 

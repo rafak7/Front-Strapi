@@ -59,7 +59,11 @@ class CampaignApi {
   async getAll(filters?: CampaignFilters): Promise<Campaign[]> {
     try {
       const queryParams = this.buildQueryParams(filters);
-      const url = `${API_BASE_URL}/campanhas${queryParams ? `?${queryParams}` : ''}`;
+      const populateParam = 'populate=*';
+      const baseUrl = `${API_BASE_URL}/campanhas`;
+      const url = queryParams 
+        ? `${baseUrl}?${queryParams}&${populateParam}`
+        : `${baseUrl}?${populateParam}`;
       
       const response = await fetch(url, {
         method: 'GET',
@@ -102,7 +106,7 @@ class CampaignApi {
 
   async getById(id: string): Promise<Campaign> {
     try {
-      const response = await fetch(`${API_BASE_URL}/campanhas/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/campanhas/${id}?populate=*`, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
@@ -126,6 +130,7 @@ class CampaignApi {
           descricao_campanha: campaignData.descricao_campanha,
           status_campanha: campaignData.status_campanha,
           data_campanha: campaignData.data_campanha,
+          ...(campaignData.empresa && { empresa: campaignData.empresa }),
         }
       };
 
@@ -155,6 +160,7 @@ class CampaignApi {
           ...(campaignData.descricao_campanha && { descricao_campanha: campaignData.descricao_campanha }),
           ...(campaignData.status_campanha && { status_campanha: campaignData.status_campanha }),
           ...(campaignData.data_campanha && { data_campanha: campaignData.data_campanha }),
+          ...(campaignData.empresa && { empresa: campaignData.empresa }),
         }
       };
 
