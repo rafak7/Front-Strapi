@@ -131,6 +131,7 @@ export default function CampaignForm({
   const handleCreateCompany = async (companyData: CompanyFormData) => {
     try {
       const newCompany = await companyApi.create(companyData);
+      
       await loadCompanies(); // Reload companies list
       setFormData(prev => ({ ...prev, empresa: newCompany.documentId }));
       setIsCompanyModalOpen(false);
@@ -139,10 +140,10 @@ export default function CampaignForm({
       if (errors.empresa) {
         setErrors(prev => ({ ...prev, empresa: '' }));
       }
-    } catch (error) {
-      console.error('Erro ao criar empresa:', error);
-      throw error;
-    }
+          } catch (error) {
+        console.error('Erro ao criar empresa:', error);
+        throw error;
+      }
   };
 
   const handleOpenCompanyModal = () => {

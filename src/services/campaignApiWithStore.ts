@@ -205,37 +205,136 @@ class CampaignApiWithStore {
       setError(null);
       this.logRequest('POST', endpoint, 'loading');
       
-      const payload: CampaignCreateData = {
-        data: {
-          nome_campanha: campaignData.nome_campanha,
-          descricao_campanha: campaignData.descricao_campanha,
-          status_campanha: campaignData.status_campanha,
-          data_campanha: campaignData.data_campanha,
-        }
-      };
+      // Se não tem empresa selecionada, criar sem relação
+      if (!campaignData.empresa) {
+        const payload = {
+          data: {
+            nome_campanha: campaignData.nome_campanha,
+            descricao_campanha: campaignData.descricao_campanha,
+            status_campanha: campaignData.status_campanha,
+            data_campanha: campaignData.data_campanha,
+          }
+        };
 
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'POST',
+        console.log('📤 Criando campanha SEM empresa:', JSON.stringify(payload, null, 2));
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: 'POST',
+          headers: this.getAuthHeaders(),
+          body: JSON.stringify(payload),
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+        
+        const result = await response.json();
+        const campaign = result.data;
+        
+        addCampaign(campaign);
+        this.logRequest('POST', endpoint, 'success', campaign);
+        return campaign;
+      }
+
+      // Verificar se a empresa existe
+      console.log('🔍 Verificando empresa com documentId:', campaignData.empresa);
+      
+      const empresaResponse = await fetch(`${API_BASE_URL}/empresas?filters[documentId][$eq]=${campaignData.empresa}`, {
+        method: 'GET',
         headers: this.getAuthHeaders(),
-        body: JSON.stringify(payload),
       });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      if (!empresaResponse.ok) {
+        throw new Error('Erro ao buscar empresa');
       }
       
-      const result = await response.json();
-      const campaign = result.data;
+      const empresaResult = await empresaResponse.json();
+      if (!empresaResult.data || empresaResult.data.length === 0) {
+        throw new Error(`Empresa não encontrada com documentId: ${campaignData.empresa}`);
+      }
       
-      addCampaign(campaign);
-      this.logRequest('POST', endpoint, 'success', campaign);
-      
-      return campaign;
+      const empresa = empresaResult.data[0];
+      console.log('🏢 Empresa encontrada:', empresa);
+
+      // Tentar sintaxes do Strapi v5 conforme documentação oficial
+      const relationshipOptions = [
+        // Opção 1: DocumentId direto (sintaxe mais simples para Many-to-One)
+        campaignData.empresa,
+        
+        // Opção 2: Usando connect com documentId (sintaxe completa)
+        {
+          connect: [{ documentId: campaignData.empresa }]
+        },
+        
+        // Opção 3: Usando connect sem array (para relação única)
+        {
+          connect: { documentId: campaignData.empresa }
+        },
+      ];
+
+      console.log('🔗 Testando sintaxes do Strapi v5 para relação empresa-campanha');
+
+      // Tentar cada opção conforme documentação oficial
+      for (let i = 0; i < relationshipOptions.length; i++) {
+        const empresaOption = relationshipOptions[i];
+        
+        const payload = {
+          data: {
+            nome_campanha: campaignData.nome_campanha,
+            descricao_campanha: campaignData.descricao_campanha,
+            status_campanha: campaignData.status_campanha,
+            data_campanha: campaignData.data_campanha,
+            empresa: empresaOption,
+          }
+        };
+
+        console.log(`📤 Tentativa ${i + 1}/${relationshipOptions.length} - Sintaxe Strapi v5:`, JSON.stringify(payload, null, 2));
+
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+          method: 'POST',
+          headers: this.getAuthHeaders(),
+          body: JSON.stringify(payload),
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`❌ Tentativa ${i + 1} falhou:`, errorText);
+          
+          // Se não é a última tentativa, continuar
+          if (i < relationshipOptions.length - 1) {
+            continue;
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+          }
+        }
+        
+        const result = await response.json();
+        console.log(`✅ Sucesso na tentativa ${i + 1}! Resposta do Strapi:`, JSON.stringify(result, null, 2));
+        
+        // Buscar a campanha criada com populate para verificar se a relação foi estabelecida
+        const createdCampaign = await this.getByIdWithPopulate(result.data.documentId);
+        console.log('📥 Campanha criada com populate:', JSON.stringify(createdCampaign, null, 2));
+        
+        // Verificar se a empresa foi relacionada corretamente
+        if (createdCampaign.empresa) {
+          console.log('🎉 SUCESSO! Relação empresa-campanha criada corretamente!');
+          console.log('🏢 Empresa relacionada:', createdCampaign.empresa);
+        } else {
+          console.warn('⚠️ Campanha criada mas empresa ainda está null');
+        }
+        
+        addCampaign(createdCampaign);
+        this.logRequest('POST', endpoint, 'success', createdCampaign);
+        return createdCampaign;
+      }
+
+      throw new Error('Todas as tentativas de criar relação falharam');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       setError(errorMessage);
       this.logRequest('POST', endpoint, 'error', undefined, errorMessage);
+      console.error('❌ Erro ao criar campanha:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -317,6 +416,27 @@ class CampaignApiWithStore {
       setLoading(false);
     }
   }
+
+  // Método auxiliar para buscar campanha com populate
+  private async getByIdWithPopulate(documentId: string): Promise<Campaign> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/campanhas/${documentId}?populate=*`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('❌ Erro ao buscar campanha com populate:', error);
+      throw error;
+    }
+  }
+
 }
 
 export const campaignApiWithStore = new CampaignApiWithStore(); 

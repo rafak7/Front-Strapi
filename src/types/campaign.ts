@@ -32,7 +32,7 @@ export interface CampaignCreateData {
     descricao_campanha: string;
     status_campanha: string;
     data_campanha: string;
-    empresa?: string;
+    empresa?: number;
   };
 }
 
@@ -42,7 +42,7 @@ export interface CampaignUpdateData {
     descricao_campanha?: string;
     status_campanha?: string;
     data_campanha?: string;
-    empresa?: string;
+    empresa?: number;
   };
 }
 
